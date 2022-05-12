@@ -1,0 +1,122 @@
+#include <dht.h>
+#define dht_pin A1
+dht DHT;
+#include <LiquidCrystal.h>
+LiquidCrystal lcd (8,9,13,12,11,10);
+int temp;
+int humidity;
+int moisture;
+int sun;
+int led = 6;
+int ldr=A2;
+int dht =A1;
+int moist =A0;
+int in1=5;
+int in2=4;
+int en1=3;
+void water_on ()
+{
+    digitalWrite(in1,HIGH);
+    digitalWrite(in2,LOW);
+    digitalWrite(en1,200);   
+    lcd.setCursor(0,1);
+    lcd.print("Water is ON");
+    //delay(5000);
+}  
+void water_off()
+{
+    digitalWrite(in1,LOW);
+    digitalWrite(in2,LOW);
+    //digitalWrite(en1,200);
+   // lcd.setCursor(3,1);
+   // lcd.print("Water is OFF"); 
+}
+void light()
+{
+  if (sun<600) 
+  {
+    digitalWrite(led,HIGH);
+    lcd.setCursor(3,1);
+    lcd.print("Ii is Night");
+  } 
+  else {
+    digitalWrite(led,LOW);
+    lcd.setCursor(3,1);
+    lcd.print("Ii is Day");
+  }
+}
+
+void setup() {
+  lcd.begin(16,2);
+pinMode(led,OUTPUT);
+pinMode(in1,OUTPUT);
+pinMode(in2,OUTPUT);
+//lcd.setCursor(0,0);
+//water();
+}
+
+void loop() {
+DHT.read11(dht_pin);
+moisture = analogRead(moist);
+sun =analogRead(ldr);
+
+//temperature
+temp = DHT.temperature;
+lcd.setCursor(0,0);
+lcd.println("the temp:");
+//lcd.setCursor(1,0);
+lcd.print(temp);
+delay(300);
+lcd.clear();
+if (temp<25)
+{
+  if(650>sun>560)
+  {
+    if(moisture<20){
+      water_on(); 
+      
+    }
+   else{water_off();}
+  }
+}
+else{
+  if(620>sun>580)
+  {
+    if(moisture<10){
+      water_on(); 
+      
+    }
+   else{water_off();}
+  }
+}
+
+//humidity
+humidity =DHT.humidity;
+lcd.setCursor(0,0);
+lcd.println("humidity: ");
+//lcd.setCursor(1,0);
+lcd.print(humidity);
+delay(300);
+lcd.clear();
+
+//ldr
+lcd.setCursor(0,0);
+lcd.println("the light:");
+lcd.print(sun);
+light();
+delay(300);
+lcd.clear();
+
+//moisture
+
+lcd.setCursor(0,0);
+lcd.print("the moisture: ");
+lcd.println(moisture);
+if(moisture<10){
+      water_on(); 
+      
+    }
+else{water_off();}
+delay(500);
+lcd.clear();
+}
